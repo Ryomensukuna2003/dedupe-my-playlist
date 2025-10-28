@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { configDotenv } from 'dotenv';
 import readline from 'node:readline';
 import { formatAllData } from './utils.js';
@@ -31,14 +30,16 @@ async function getAppAccessToken() {
     const params = new URLSearchParams();
     params.append('grant_type', 'client_credentials');
 
-    const resp = await axios.post(tokenUrl, params.toString(), {
+    const resp = await fetch(tokenUrl, {
+      method: 'POST',
+      body: params.toString(),
       headers: {
         'Authorization': `Basic ${auth}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
     });
 
-    const data = resp.data;
+    const data = await resp.json();
     cachedToken = data.access_token;
     tokenExpiresAt = Date.now() + (data.expires_in * 1000);
 
@@ -63,18 +64,20 @@ const formatTracks = async (totalSongs, tracksObj, token) => {
   let nextUrl = tracksObj.next;
 
   while (formatted.length < totalSongs && nextUrl) {
-    const res = await axios.get(nextUrl, {
+    const res = await fetch(nextUrl, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`
-      }
+      },
     });
 
-    res.data.items.forEach(item => {
+    const data = await res.json();
+    data.items.forEach(item => {
       const track = item.track;
       formatted.push(track.name);
     });
 
-    nextUrl = res.data.next;
+    nextUrl = data.next;
   }
 
   return formatted;
