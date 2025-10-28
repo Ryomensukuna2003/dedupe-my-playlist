@@ -23,3 +23,4 @@ How dose this work?
 - It will sort the tracks by the number of times the word appears in the track
 - It will return the tracks that have the same word in the track
 
+<img width="1710" height="1112" alt="Screenshot 2025-10-28 at 10 46 55 PM" src="https://github.com/user-attachments/assets/9dd91cdc-0378-4957-92f1-a3922d9bea3e" />
