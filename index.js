@@ -2,6 +2,7 @@ import { configDotenv } from 'dotenv';
 import readline from 'node:readline';
 import { formatAllData } from './utils.js';
 
+
 configDotenv();
 
 // Token caching (in-memory)
@@ -20,7 +21,7 @@ async function getAppAccessToken() {
   const clientSecret = process.env.CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
-    throw new Error('Missing CLIENT_ID or CLIENT_SECRET environment variables.');
+    throw new Error('Missing CLIENT_ID or CIENT_SECRET environment variables.');
   }
 
   const tokenUrl = 'https://accounts.spotify.com/api/token';
@@ -105,7 +106,7 @@ const main = async () => {
           total: allTracks.length,
           tracks: allTracks
         }
-        const formattedData = formatAllData(playlistData);
+        const formattedData = await formatAllData(playlistData);
         console.log(JSON.stringify(formattedData, null, 2));
       } catch (error) {
         console.error('Error fetching playlist:', error.response ? error.response.data : error.message);

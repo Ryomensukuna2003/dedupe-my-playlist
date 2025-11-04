@@ -1,36 +1,36 @@
-export const formatAllData = (test) => {
-    // no duplicates
-    const wordsOfTracks = [];
-    for (const track of test.tracks) {
-        const words = track.split(" ");
-        for (const word of words) {
-            if (!wordsOfTracks.includes(word)) {
-                wordsOfTracks.push(word);
-            }
-        }
-    }
-    
-    const wordMap = new Map();
-    
-    for(const word of wordsOfTracks) {
-        for(const track of test.tracks) {
-            const wordsOfTracks = track.split(" ");
-            if(wordsOfTracks.includes(word)) {
-                if(wordMap.has(word)) {
-                    wordMap.get(word).push(track);
-                } else {
-                    wordMap.set(word, [track]);
-                }
-            }
-        }
-    }
-    
-    const jsonOfWords = {};
-    for (const [word, tracks] of wordMap.entries()) {
-        if(tracks.length > 1) {
+import { HuggingFaceTransformersEmbeddings } from "@langchain/community/embeddings/huggingface_transformers";
+import cosine from "ml-distance/lib-esm/similarities/cosine.js";
 
-            jsonOfWords[word] = tracks.sort();
-        }
+export const formatAllData = async (playlist) => {
+  const tracks = playlist.tracks.map(t =>
+    t.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim()
+  );
+
+  const embeddings = new HuggingFaceTransformersEmbeddings({
+    modelName: "Xenova/all-MiniLM-L12-v2", // local model
+  });
+
+  const vectors = await embeddings.embedDocuments(tracks);
+
+  const threshold = 0.8; // slightly stricter for better grouping
+  const clusters = [];
+  const used = new Set();
+
+  for (let i = 0; i < tracks.length; i++) {
+    if (used.has(i)) continue;
+    const group = [playlist.tracks[i]];
+    used.add(i);
+
+    for (let j = i + 1; j < tracks.length; j++) {
+      const sim = cosine(vectors[i], vectors[j]);
+      if (sim > threshold) {
+        group.push(playlist.tracks[j]);
+        used.add(j);
+      }
     }
-    return jsonOfWords;
-}
+
+    clusters.push(group);
+  }
+
+  return clusters.filter(g => g.length > 1);
+};

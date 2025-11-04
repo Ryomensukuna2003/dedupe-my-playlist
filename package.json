@@ -11,6 +11,11 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "dotenv": "^17.2.3"
+    "@huggingface/transformers": "^3.7.6",
+    "@langchain/community": "^1.0.0",
+    "dotenv": "^17.2.3",
+    "langchain": "^1.0.2",
+    "ml-distance": "^4.0.1",
+    "openai": "^6.8.0"
   }
 }
